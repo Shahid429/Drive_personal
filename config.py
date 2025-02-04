@@ -30,11 +30,11 @@ DATABASE_BACKUP_MSG_ID = int(
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "FN-TG-DRIVE")  # Default to "admin" if not set
 
 # Determine the maximum file size (in bytes) allowed for uploading to Telegram
-# 1.98 GB if no premium sessions are provided, otherwise 3.98 GB
+# 10 GB if no premium sessions are provided, otherwise 20 GB
 if len(STRING_SESSIONS) == 0:
-    MAX_FILE_SIZE = 100000000000 * 1024 * 1024 * 1024  # 2 GB in bytes
+    MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024  # 10 GB in bytes (10737418240 bytes)
 else:
-    MAX_FILE_SIZE = 300000000000 * 1024 * 1024 * 1024  # 4 GB in bytes
+    MAX_FILE_SIZE = 20 * 1024 * 1024 * 1024  # 20 GB in bytes (21474836480 bytes)
 
 # Database backup interval in seconds. Backups will be sent to the storage channel at this interval
 DATABASE_BACKUP_TIME = int(
