@@ -1,11 +1,11 @@
-// Updated to work with grid view
 function showDirectory(data) {
-    data = data['contents'];
-    const grid = document.getElementById('files-grid');
-    grid.innerHTML = '';
-    const isTrash = getCurrentPath().startsWith('/trash');
+    data = data['contents']
+    document.getElementById('directory-data').innerHTML = ''
+    const isTrash = getCurrentPath().startsWith('/trash')
 
-    // Sort folders and files
+    let html = ''
+
+    // Step 2: Sort the array based on the 'date' values
     let entries = Object.entries(data);
     let folders = entries.filter(([key, value]) => value.type === 'folder');
     let files = entries.filter(([key, value]) => value.type === 'file');
@@ -13,98 +13,83 @@ function showDirectory(data) {
     folders.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
     files.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
 
-    // Add folders
-    folders.forEach(([key, item]) => {
-        const folderCard = document.createElement('div');
-        folderCard.className = 'file-card';
-        folderCard.setAttribute('data-id', item.id);
-        folderCard.setAttribute('data-path', item.path);
-        folderCard.innerHTML = `
-            <div class="folder-icon">
-                <i class="fas fa-folder"></i>
-            </div>
-            <div class="file-name">${item.name}</div>
-            <div class="file-info">${formatDate(item.upload_date)}</div>
-            <div class="file-badge">Folder</div>
-        `;
-        folderCard.addEventListener('dblclick', openFolder);
-        grid.appendChild(folderCard);
-    });
+    for (const [key, item] of folders) {
+        if (item.type === 'folder') {
+            html += `<tr data-path="${item.path}" data-id="${item.id}" class="body-tr folder-tr"><td><div class="td-align"><img src="static/assets/folder-solid-icon.svg">${item.name}</div></td><td><div class="td-align"></div></td><td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td></tr>`
 
-    // Add files
-    files.forEach(([key, item]) => {
-        const fileCard = document.createElement('div');
-        fileCard.className = 'file-card';
-        fileCard.setAttribute('data-id', item.id);
-        fileCard.setAttribute('data-path', item.path);
-        fileCard.setAttribute('data-name', item.name);
-        
-        const fileIcon = getFileIcon(item.name);
-        const size = convertBytes(item.size);
-        
-        fileCard.innerHTML = `
-            <div class="file-icon">
-                <i class="${fileIcon}"></i>
-            </div>
-            <div class="file-name">${item.name}</div>
-            <div class="file-info">${size} • ${formatDate(item.upload_date)}</div>
-            ${item.size > 2000000000 ? '<div class="file-badge">Large</div>' : ''}
-        `;
-        fileCard.addEventListener('dblclick', openFile);
-        grid.appendChild(fileCard);
-    });
-}
-
-// Helper function to get file icon
-function getFileIcon(filename) {
-    const ext = filename.split('.').pop().toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-        return 'fas fa-file-image';
-    } else if (['mp4', 'mkv', 'mov', 'avi', 'flv'].includes(ext)) {
-        return 'fas fa-file-video';
-    } else if (['pdf'].includes(ext)) {
-        return 'fas fa-file-pdf';
-    } else if (['doc', 'docx'].includes(ext)) {
-        return 'fas fa-file-word';
-    } else if (['xls', 'xlsx'].includes(ext)) {
-        return 'fas fa-file-excel';
-    } else if (['ppt', 'pptx'].includes(ext)) {
-        return 'fas fa-file-powerpoint';
-    } else if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) {
-        return 'fas fa-file-archive';
-    } else if (['mp3', 'wav', 'flac', 'aac'].includes(ext)) {
-        return 'fas fa-file-audio';
-    } else {
-        return 'fas fa-file';
+            if (isTrash) {
+                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr><div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div></div>`
+            }
+            else {
+                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="rename-${item.id}"><img src="static/assets/pencil-icon.svg"> Rename</div><hr><div id="trash-${item.id}"><img src="static/assets/trash-icon.svg"> Trash</div><hr><div id="folder-share-${item.id}"><img src="static/assets/share-icon.svg"> Share</div></div>`
+            }
+        }
     }
-}
 
-// Format date for display
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+    for (const [key, item] of files) {
+        if (item.type === 'file') {
+            const size = convertBytes(item.size)
+            html += `<tr data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="body-tr file-tr"><td><div class="td-align"><img src="static/assets/file-icon.svg">${item.name}</div></td><td><div class="td-align">${size}</div></td><td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td></tr>`
+
+            if (isTrash) {
+                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr><div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div></div>`
+            }
+            else {
+                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="rename-${item.id}"><img src="static/assets/pencil-icon.svg"> Rename</div><hr><div id="trash-${item.id}"><img src="static/assets/trash-icon.svg"> Trash</div><hr><div id="share-${item.id}"><img src="static/assets/share-icon.svg"> Share</div></div>`
+            }
+        }
+    }
+    document.getElementById('directory-data').innerHTML = html
+
+    if (!isTrash) {
+        document.querySelectorAll('.folder-tr').forEach(div => {
+            div.ondblclick = openFolder;
+        });
+        document.querySelectorAll('.file-tr').forEach(div => {
+            div.ondblclick = openFile;
+        });
+    }
+
+    document.querySelectorAll('.more-btn').forEach(div => {
+        div.addEventListener('click', function (event) {
+            event.preventDefault();
+            openMoreButton(div)
+        });
     });
 }
 
-// Search form
-document.getElementById('search-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+document.getElementById('search-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
     const query = document.getElementById('file-search').value;
-    if (query === '') return;
-    window.location = '/?path=/search_' + encodeURI(query);
+    console.log(query)
+    if (query === '') {
+        alert('Search field is empty');
+        return;
+    }
+    const path = '/?path=/search_' + encodeURI(query);
+    console.log(path)
+    window.location = path;
 });
 
-// DOM Content Loaded
-document.addEventListener('DOMContentLoaded', function() {
-    if (getPassword() === null && !getCurrentPath().includes('/share_')) {
-        document.getElementById('bg-blur').style.opacity = '1';
-        document.getElementById('get-password').style.opacity = '1';
-        document.getElementById('get-password').style.pointerEvents = 'all';
+// Loading Main Page
+
+document.addEventListener('DOMContentLoaded', function () {
+    const inputs = ['new-folder-name', 'rename-name', 'file-search']
+    for (let i = 0; i < inputs.length; i++) {
+        document.getElementById(inputs[i]).addEventListener('input', validateInput);
+    }
+
+    if (getCurrentPath().includes('/share_')) {
+        getCurrentDirectory()
     } else {
-        getCurrentDirectory();
+        if (getPassword() === null) {
+            document.getElementById('bg-blur').style.zIndex = '2';
+            document.getElementById('bg-blur').style.opacity = '0.1';
+
+            document.getElementById('get-password').style.zIndex = '3';
+            document.getElementById('get-password').style.opacity = '1';
+        } else {
+            getCurrentDirectory()
+        }
     }
 });

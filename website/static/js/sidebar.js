@@ -1,70 +1,102 @@
-// Updated to work with new UI elements
-document.getElementById('new-button').addEventListener('click', () => {
-    document.getElementById('new-upload').style.zIndex = '1';
-    document.getElementById('new-upload').style.opacity = '1';
-});
+// Handling New Button On Sidebar Click
+const isTrash = getCurrentPath().startsWith('/trash')
+const isSearch = getCurrentPath().startsWith('/search')
+const isShare = getCurrentPath().startsWith('/share')
 
-// Close new upload when clicking outside
-document.addEventListener('click', (e) => {
-    const newUpload = document.getElementById('new-upload');
-    if (!e.target.closest('#new-button') && !e.target.closest('#new-upload')) {
-        newUpload.style.opacity = '0';
-        setTimeout(() => {
-            newUpload.style.zIndex = '-1';
-        }, 300);
-    }
-});
-
-// File upload button
-document.getElementById('file-upload-btn').addEventListener('click', () => {
-    document.getElementById('fileInput').click();
-});
-
-// Folder creation
-document.getElementById('new-folder-btn').addEventListener('click', () => {
-    document.getElementById('new-folder-name').value = '';
-    document.getElementById('bg-blur').style.opacity = '1';
-    document.getElementById('create-new-folder').style.opacity = '1';
-    document.getElementById('create-new-folder').style.pointerEvents = 'all';
-    setTimeout(() => {
-        document.getElementById('new-folder-name').focus();
-    }, 100);
-});
-
-// URL upload
-document.getElementById('url-upload-btn').addEventListener('click', () => {
-    document.getElementById('remote-url').value = '';
-    document.getElementById('bg-blur').style.opacity = '1';
-    document.getElementById('new-url-upload').style.opacity = '1';
-    document.getElementById('new-url-upload').style.pointerEvents = 'all';
-    setTimeout(() => {
-        document.getElementById('remote-url').focus();
-    }, 100);
-});
-
-// Modal close functions
-function closeModal(modalId) {
-    document.getElementById('bg-blur').style.opacity = '0';
-    document.getElementById(modalId).style.opacity = '0';
-    setTimeout(() => {
-        document.getElementById(modalId).style.pointerEvents = 'none';
-        document.getElementById('bg-blur').style.pointerEvents = 'none';
-    }, 300);
+if (!isTrash && !isSearch) {
+    document.getElementById('new-button').addEventListener('click', () => {
+        document.getElementById('new-upload').style.zIndex = '1'
+        document.getElementById('new-upload').style.opacity = '1'
+        document.getElementById('new-upload').style.top = '80px'
+        document.getElementById('new-upload-focus').focus()
+    });
+}
+else {
+    document.getElementById('new-button').style.display = 'none'
 }
 
-// Close modals when clicking on background
-document.getElementById('bg-blur').addEventListener('click', () => {
-    closeModal('create-new-folder');
-    closeModal('rename-file-folder');
-    closeModal('new-url-upload');
-    closeModal('get-password');
-    closeModal('file-uploader');
+if (isShare) {
+    document.getElementById('new-button').style.display = 'none'
+    const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a')
+    sections[1].remove()
+}
+
+// New File Upload Start
+
+function closeNewUploadFocus() {
+    setTimeout(() => {
+        document.getElementById('new-upload').style.opacity = '0'
+        document.getElementById('new-upload').style.top = '40px'
+        setTimeout(() => {
+            document.getElementById('new-upload').style.zIndex = '-1'
+        }, 300)
+    }, 200)
+}
+document.getElementById('new-upload-focus').addEventListener('blur', closeNewUploadFocus);
+document.getElementById('new-upload-focus').addEventListener('focusout', closeNewUploadFocus);
+
+document.getElementById('file-upload-btn').addEventListener('click', () => {
+    document.getElementById('fileInput').click()
 });
 
-// Add close handlers to all cancel buttons
-document.querySelectorAll('[id$="-cancel"]').forEach(button => {
-    button.addEventListener('click', () => {
-        const modalId = button.closest('.modal').id;
-        closeModal(modalId);
-    });
+// New File Upload End
+
+// New Folder Start
+
+document.getElementById('new-folder-btn').addEventListener('click', () => {
+    document.getElementById('new-folder-name').value = '';
+    document.getElementById('bg-blur').style.zIndex = '2';
+    document.getElementById('bg-blur').style.opacity = '0.1';
+
+    document.getElementById('create-new-folder').style.zIndex = '3';
+    document.getElementById('create-new-folder').style.opacity = '1';
+    setTimeout(() => {
+        document.getElementById('new-folder-name').focus();
+    }, 300)
+})
+
+document.getElementById('new-folder-cancel').addEventListener('click', () => {
+    document.getElementById('new-folder-name').value = '';
+    document.getElementById('bg-blur').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('bg-blur').style.zIndex = '-1';
+    }, 300)
+    document.getElementById('create-new-folder').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('create-new-folder').style.zIndex = '-1';
+    }, 300)
 });
+
+document.getElementById('new-folder-create').addEventListener('click', createNewFolder);
+
+// New Folder End
+
+// New Url Upload Start
+
+document.getElementById('url-upload-btn').addEventListener('click', () => {
+    document.getElementById('remote-url').value = '';
+    document.getElementById('bg-blur').style.zIndex = '2';
+    document.getElementById('bg-blur').style.opacity = '0.1';
+
+    document.getElementById('new-url-upload').style.zIndex = '3';
+    document.getElementById('new-url-upload').style.opacity = '1';
+    setTimeout(() => {
+        document.getElementById('remote-url').focus();
+    }, 300)
+})
+
+document.getElementById('remote-cancel').addEventListener('click', () => {
+    document.getElementById('remote-url').value = '';
+    document.getElementById('bg-blur').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('bg-blur').style.zIndex = '-1';
+    }, 300)
+    document.getElementById('new-url-upload').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('new-url-upload').style.zIndex = '-1';
+    }, 300)
+});
+
+document.getElementById('remote-start').addEventListener('click', Start_URL_Upload);
+
+// New Url Upload End
