@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TG Drive - Cloud Storage</title>
+    <link rel="stylesheet" href="static/home.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fab fa-telegram fa-2x" style="color: #4cc9f0;"></i>
+                <span>TG Drive</span>
+            </div>
+
+            <button id="new-button" class="new-button">
+                <i class="fas fa-plus"></i> New
+            </button>
+
+            <div id="new-upload" class="new-upload">
+                <div id="new-folder-btn">
+                    <i class="fas fa-folder"></i> New Folder
+                </div>
+                <hr />
+                <div id="file-upload-btn">
+                    <i class="fas fa-upload"></i> File Upload
+                </div>
+                <input type="file" id="fileInput" style="display: none;" />
+                <hr />
+                <div id="url-upload-btn">
+                    <i class="fas fa-link"></i> URL Upload
+                </div>
+            </div>
+
+            <div class="sidebar-menu">
+                <a class="selected-item" href="/?path=/"><i class="fas fa-home"></i> Home</a>
+                <a class="unselected-item" href="/?path=/trash"><i class="fas fa-trash"></i> Trash</a>
+                <a class="unselected-item"><i class="fas fa-share-alt"></i> Shared</a>
+                <a class="unselected-item"><i class="fas fa-star"></i> Starred</a>
+                <a class="unselected-item"><i class="fas fa-clock"></i> Recent</a>
+                <a class="unselected-item"><i class="fas fa-robot"></i> Bot Mode</a>
+                <a class="unselected-item"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+            
+            <div class="storage">
+                <h3>Storage</h3>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+                <div class="storage-info">4.2 GB of 15 GB used</div>
+            </div>
+        </div>
+
+        <div id="bg-blur" class="bg-blur"></div>
+
+        <!-- Modals -->
+        <div id="create-new-folder" class="modal">
+            <div class="modal-content">
+                <span>New Folder</span>
+                <input type="text" id="new-folder-name" placeholder="Enter Folder Name" autocomplete="off" />
+                <div>
+                    <button id="new-folder-cancel">Cancel</button>
+                    <button id="new-folder-create">Create</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="rename-file-folder" class="modal">
+            <div class="modal-content">
+                <span>Edit Name</span>
+                <input type="text" id="rename-name" placeholder="Enter New Name" autocomplete="off" />
+                <div>
+                    <button id="rename-cancel">Cancel</button>
+                    <button id="rename-create">Rename</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="new-url-upload" class="modal">
+            <div class="modal-content">
+                <span>URL Upload</span>
+                <input type="text" id="remote-url" placeholder="Enter Direct Download Link" autocomplete="off" />
+                <div id="single-threaded-div">
+                    <input type="checkbox" name="single-threaded-toggle" id="single-threaded-toggle">
+                    <label for="single-threaded-toggle">Single Threaded</label>
+                    <a href="#"><i class="fas fa-info-circle"></i></a>
+                </div>
+                <div>
+                    <button id="remote-cancel">Cancel</button>
+                    <button id="remote-start">Upload</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="get-password" class="modal">
+            <div class="modal-content">
+                <span>Admin Login</span>
+                <input type="password" id="auth-pass" placeholder="Enter Password" autocomplete="off" />
+                <div>
+                    <button id="pass-login">Login</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="file-uploader" class="modal">
+            <div class="modal-content">
+                <span class="upload-head"><i class="fas fa-cloud-upload-alt"></i> Uploading File...</span>
+                <div class="upload-info">
+                    <span id="upload-filename">Filename: </span>
+                    <span id="upload-filesize">Filesize: </span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="status-info">
+                    <span id="upload-status">Status: </span>
+                    <span id="upload-percent">Progress: 0%</span>
+                </div>
+                <div class="btn-div">
+                    <button id="cancel-file-upload">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <form id="search-form">
+                        <input id="file-search" type="text" placeholder="Search in Drive" autocomplete="off" />
+                    </form>
+                </div>
+                <div class="user-info">
+                    <span>Admin User</span>
+                    <div class="user-avatar">AD</div>
+                </div>
+            </div>
+
+            <div class="directory">
+                <div class="directory-header">
+                    <h2>My Drive</h2>
+                    <div class="view-controls">
+                        <button class="view-btn active"><i class="fas fa-th"></i></button>
+                        <button class="view-btn"><i class="fas fa-list"></i></button>
+                    </div>
+                </div>
+                
+                <div class="files-grid" id="files-grid">
+                    <!-- Files will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="static/js/extra.js"></script>
+    <script src="static/js/apiHandler.js"></script>
+    <script src="static/js/sidebar.js"></script>
+    <script src="static/js/fileClickHandler.js"></script>
+    <script src="static/js/main.js"></script>
+</body>
+</html>
